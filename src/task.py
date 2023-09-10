@@ -1,36 +1,44 @@
 '''
 10.09
-0.1
+0.2
 '''
 
 import sys
 import csv
 from tabulate import tabulate
+
+# Global variable to keep track of the ID
+#FIXME: the counter always returns to 0
+# (acho que vou fazer um arquivo JSON na pasta data, para armazenar o ID. Posso usar o mesmo arquivo para salvar o email depois(?)).
+id_counter = 0
+
 # The program has three modes: write, read and done
 def main():
-    check_cl_arg()
-    mode = check_mode(sys.argv[1])
-    # Adicionar nova tarefa
-    if mode == 'write':
-        print('-----------')
-        print('WRITE MODE')
-        print('-----------')
-        new_task()
-    # Visualizar tarefas (modo leitura)
-    if mode == 'read':
-        print('READ MODE')
-        read_task()
-    if mode == 'done':
-        finish_task()
+    try:
+        check_cl_arg()
+        mode = check_mode(sys.argv[1])
+        # Adicionar nova tarefa
+        if mode == 'write':
+            print('\n> WRITE MODE\n')
+            new_task()
+        # Visualizar tarefas (modo leitura)
+        if mode == 'read':
+            print('> READ MODE')
+            read_task()
+        if mode == 'done':
+            finish_task()
+    except KeyboardInterrupt:
+        sys.exit('\nOperation canceled by the user.')
     
 
 
 # Function that writes a new task
+# TODO: usar uma biblioteca que use uma interface grafica, para facilitar a entrada de novas tarefas
 def new_task():
+    global id_counter # global keyword declara o uso da variavel global
+    
     try:
-        # TODO: Refactor task ID management to ensure unique IDs
         # TODO: Implement data validation for tasks input (name, description, date)
-        id_counter = 1 # Contador para adicionar o id de cada tarefa, (tenho certeza que existe um jeito melhor de fazer isso)
         # Get a user input for the new task
         task_name = input('Set a name for the task: ')
         task_desc = input('Describe the task: ')
@@ -38,12 +46,13 @@ def new_task():
         task_date = input('Set a deadline(DD-MM-AA): ') # TODO: mudar a data para ficar no formato de DD-MM
     except ValueError:
         sys.exit('Invalid Input')
-    
-    # Abre o arquivo no 'append mode' e 
-    with open('task.csv', 'a', newline='') as file:
-        id_counter += 1
-        writer = csv.writer(file)
         
+    # Adiciona 1 ao countador do ID
+    id_counter += 1
+    
+    # Abre o arquivo no 'append mode', escreve a linha com a nova tarefa no arquivo csv
+    with open('task.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
         writer.writerow([id_counter, task_name, task_desc, task_star, task_date])
     
     print(f'Task {id_counter} added successfully.')
@@ -112,7 +121,9 @@ def check_mode(input):
         return 'done'
     sys.exit('Invalid Input')
 
-    
+# TODO: Funcao para enviar um email para o usuario (tarefas 2 'estrelas')
+def send_reminder():
+    ...
 
 if __name__ == '__main__':
     main()
