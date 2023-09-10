@@ -30,13 +30,15 @@ def main():
 
 # Function that writes a new task
 def new_task():
-    id_counter = 1 # Contador para adicionar o id de cada tarefa, (tenho certeza que existe um jeito melhor de fazer isso
-    # Get a user input for the new task..
-    task_name = input('Set a name for the task: ')
-    task_desc = input('Describe the task: ')
-    task_star = int(input('Rate relevance (0-2): '))
-    # TODO: rejeitar inputs que nao estejam no formato certo
-    task_date = input('Set a deadline(DD-MM-AA): ') # TODO: mudar a data para ficar no formato de DD-MM
+    try:
+        id_counter = 1 # Contador para adicionar o id de cada tarefa, (tenho certeza que existe um jeito melhor de fazer isso
+        # Get a user input for the new task..
+        task_name = input('Set a name for the task: ')
+        task_desc = input('Describe the task: ')
+        task_star = int(input('Rate relevance (0-2): '))
+        task_date = input('Set a deadline(DD-MM-AA): ') # TODO: mudar a data para ficar no formato de DD-MM
+    except ValueError:
+        sys.exit('Invalid Input')
     
     # Abre o arquivo no 'append mode' e 
     with open('task.csv', 'a', newline='') as file:
@@ -59,32 +61,39 @@ def read_task():
     print(tabulate(tabela[1:], headers=tabela[0], tablefmt='grid'))
     
 # Function to mark a task as done and remove it
+# Funcao feita usando o famigerado ChatGPT
 def finish_task():
-    # Read and display tasks with IDs and names
     try:
-        with open('task.csv', 'r') as file:
+        with open('task.csv', 'r', newline='') as file:
             reader = csv.reader(file)
             rows = list(reader)
             if len(rows) <= 1:
-                print("No tasks found.")
+                print('No tasks found.')
             else:
-                print("\nTask ID and Name:")
+                print('\nTask ID and Name:')
                 for i, row in enumerate(rows[1:]):  # Skip header row
-                    print(f"{i}: {row[1]}")
-                task_id = input(f"Enter the task ID to mark as done (0-{len(rows)-2}): ")
+                    print(f'{i}: {row[1]}')
+                task_id = input(f'Enter the task ID to mark as done (0-{len(rows)-2}): ')
                 try:
                     task_id = int(task_id)
                     if 0 <= task_id < len(rows)-1:
                         task_name = rows[task_id + 1][1]  # Offset for header row
                         print(f"Marking task {task_id}: '{task_name}' as done.")
-                        # You can add code here to update the task status if needed.
+
+                        # Remove the completed task from the list
+                        del rows[task_id + 1]  # Offset for header row
+
+                        # Save the updated list back to the CSV file
+                        with open('task.csv', 'w', newline='') as updated_file:
+                            writer = csv.writer(updated_file)
+                            writer.writerow(rows[0])  # Write the header row
+                            writer.writerows(rows[1:])  # Write tasks (excluding the deleted one)
                     else:
-                        print("Invalid task ID. No task found with that ID.")
+                        print('Invalid task ID. No task found with that ID.')
                 except ValueError:
-                    print("Invalid input. Please enter a valid task ID.")
+                    print('Invalid input. Please enter a valid task ID.')
     except FileNotFoundError:
         sys.exit('ERROR: task file not found')
-
 
 # Function to check the command line arguments
 def check_cl_arg():
