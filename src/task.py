@@ -1,7 +1,6 @@
 '''
-Um programa que recebe tarefas, armazena elas, organiza (tarefas tem importancia de 0 a 2) e cria um alarme para cada tarefa
-A Script that recieves tasks from the user, store, organize (from 0 - 2), then set a reminder for each task. 
-A reminder sends a text and an email when the deadline is close.
+10.09
+0.1
 '''
 
 import sys
