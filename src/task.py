@@ -12,15 +12,13 @@ def main():
     mode = check_mode(sys.argv[1])
     # Adicionar nova tarefa
     if mode == 'write':
-        print('==========')
+        print('-----------')
         print('WRITE MODE')
-        print('==========')
+        print('-----------')
         new_task()
     # Visualizar tarefas (modo leitura)
     if mode == 'read':
-        print('---------')
         print('READ MODE')
-        print('---------')
         read_task()
     if mode == 'done':
         finish_task()
@@ -30,8 +28,10 @@ def main():
 # Function that writes a new task
 def new_task():
     try:
-        id_counter = 1 # Contador para adicionar o id de cada tarefa, (tenho certeza que existe um jeito melhor de fazer isso
-        # Get a user input for the new task..
+        # TODO: Refactor task ID management to ensure unique IDs
+        # TODO: Implement data validation for tasks input (name, description, date)
+        id_counter = 1 # Contador para adicionar o id de cada tarefa, (tenho certeza que existe um jeito melhor de fazer isso)
+        # Get a user input for the new task
         task_name = input('Set a name for the task: ')
         task_desc = input('Describe the task: ')
         task_star = int(input('Rate relevance (0-2): '))
@@ -41,14 +41,15 @@ def new_task():
     
     # Abre o arquivo no 'append mode' e 
     with open('task.csv', 'a', newline='') as file:
+        id_counter += 1
         writer = csv.writer(file)
         
         writer.writerow([id_counter, task_name, task_desc, task_star, task_date])
     
     print(f'Task {id_counter} added successfully.')
 
-# Fucao para mostar a tabela formatada com as tarefas
 tabela = []
+# Fucao para mostar a tabela formatada com as tarefas
 def read_task():
     try:
         with open('task.csv', 'r') as file:
@@ -59,8 +60,7 @@ def read_task():
         sys.exit('ERROR: task file not found')
     print(tabulate(tabela[1:], headers=tabela[0], tablefmt='grid'))
     
-# Function to mark a task as done and remove it
-# Funcao feita usando o famigerado ChatGPT
+# Function to mark a task as done and remove it ()
 def finish_task():
     try:
         with open('task.csv', 'r', newline='') as file:
@@ -91,6 +91,7 @@ def finish_task():
                         print('Invalid task ID. No task found with that ID.')
                 except ValueError:
                     print('Invalid input. Please enter a valid task ID.')
+                    
     except FileNotFoundError:
         sys.exit('ERROR: task file not found')
 
@@ -115,3 +116,4 @@ def check_mode(input):
 
 if __name__ == '__main__':
     main()
+# The - finish_task() function was generated with assistance from ChatGPT by OpenAI
