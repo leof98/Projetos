@@ -6,6 +6,7 @@
 import sys
 import csv
 from tabulate import tabulate
+import os
 
 # Global variable to keep track of the ID
 #FIXME: the counter always returns to 0
@@ -30,7 +31,14 @@ def main():
     except KeyboardInterrupt:
         sys.exit('\nOperation canceled by the user.')
     
-
+# 
+def load_id_counter():
+    settings_path = os.path.join('data', 'settings.txt')
+    try:
+        with open(settings_path, 'r') as file:
+            return int(file.read())
+    except FileNotFoundError:
+        return 0
 
 # Function that writes a new task
 # TODO: usar uma biblioteca que use uma interface grafica, para facilitar a entrada de novas tarefas
