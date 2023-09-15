@@ -11,10 +11,12 @@ import os
 # Global variable to keep track of the ID
 #FIXME: the counter always returns to 0
 # (acho que vou fazer um arquivo JSON na pasta data, para armazenar o ID. Posso usar o mesmo arquivo para salvar o email depois(?)).
-id_counter = 0
+id_counter = 1
 
-# The program has three modes: write, read and done
+# O programa funciona em 3 modos: 'write - read - done'
 def main():
+    global id_counter
+    id_counter = load_id_counter()
     try:
         check_cl_arg()
         mode = check_mode(sys.argv[1])
@@ -31,7 +33,7 @@ def main():
     except KeyboardInterrupt:
         sys.exit('\nOperation canceled by the user.')
     
-# 
+# Funcao para verificar o contador do ID atual
 def load_id_counter():
     settings_path = os.path.join('data', 'settings.txt')
     try:
@@ -40,14 +42,22 @@ def load_id_counter():
     except FileNotFoundError:
         return 0
 
-# Function that writes a new task
+# Funcao para salvar o contador em um arquivo settings
+def save_id_counter():
+    settings_path = os.path.join('data', 'settings.txt')
+    with open(settings_path, 'w') as file:
+        file.write(str(id_counter))
+        return 0
+    
+
+# Funcao para escrever uma tarefa nova
 # TODO: usar uma biblioteca que use uma interface grafica, para facilitar a entrada de novas tarefas
 def new_task():
     global id_counter # global keyword declara o uso da variavel global
     
     try:
         # TODO: Implement data validation for tasks input (name, description, date)
-        # Get a user input for the new task
+        # 'Pede' ao usuario informacoes para a nova tarefa
         task_name = input('Set a name for the task: ')
         task_desc = input('Describe the task: ')
         task_star = int(input('Rate relevance (0-2): '))
@@ -55,8 +65,10 @@ def new_task():
     except ValueError:
         sys.exit('Invalid Input')
         
-    # Adiciona 1 ao countador do ID
+    # Atualiaza o contador
     id_counter += 1
+    # Salva o ID atualizado
+    save_id_counter()
     
     # Abre o arquivo no 'append mode', escreve a linha com a nova tarefa no arquivo csv
     with open('task.csv', 'a', newline='') as file:
@@ -77,7 +89,7 @@ def read_task():
         sys.exit('ERROR: task file not found')
     print(tabulate(tabela[1:], headers=tabela[0], tablefmt='grid'))
     
-# Function to mark a task as done and remove it ()
+# Funcao para remover uma tarefa concluida
 def finish_task():
     try:
         with open('task.csv', 'r', newline='') as file:
@@ -87,19 +99,19 @@ def finish_task():
                 print('No tasks found.')
             else:
                 print('\nTask ID and Name:')
-                for i, row in enumerate(rows[1:]):  # Skip header row
+                for i, row in enumerate(rows[1:]):
                     print(f'{i}: {row[1]}')
                 task_id = input(f'Enter the task ID to mark as done (0-{len(rows)-2}): ')
                 try:
                     task_id = int(task_id)
                     if 0 <= task_id < len(rows)-1:
-                        task_name = rows[task_id + 1][1]  # Offset for header row
+                        task_name = rows[task_id + 1][1]
                         print(f"Marking task {task_id}: '{task_name}' as done.")
 
-                        # Remove the completed task from the list
-                        del rows[task_id + 1]  # Offset for header row
+                        # Remove a tarefa concluida da lista
+                        del rows[task_id + 1]
 
-                        # Save the updated list back to the CSV file
+                        # Salva a lista atualiza em um arquivo CSV
                         with open('task.csv', 'w', newline='') as updated_file:
                             writer = csv.writer(updated_file)
                             writer.writerow(rows[0])  # Write the header row
